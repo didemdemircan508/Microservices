@@ -1,0 +1,14 @@
+Services
+-catalogAPI0=>5011
+-photostock=>5012
+-baskte=>5013
+-discount=>5014
+-order=>5015
+-payment=>5016
+-gateway=>5000
+
+Frontends
+-MVC=>5010
+
+
+identityserver=>5001
