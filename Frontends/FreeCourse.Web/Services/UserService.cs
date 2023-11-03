@@ -20,6 +20,9 @@ namespace FreeCourse.Web.Services
             //tokendelegatehandler yaparak istek atarken istediğin headırına cookiedan okuduğum tokeni göndericeğim bu sayde her istekte token almıyacağım 
             return await _httpClient.GetFromJsonAsync<UserViewModel>("/api/user/getuser");
 
+
+
+
         }
     }
 }
