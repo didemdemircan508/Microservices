@@ -1,5 +1,6 @@
 using FreeCourse.Shared.Services;
 using FreeCourse.Web.Handler;
+using FreeCourse.Web.Helpers;
 using FreeCourse.Web.Models;
 using FreeCourse.Web.Services;
 using FreeCourse.Web.Services.Interface;
@@ -15,6 +16,7 @@ builder.Services.Configure<ServiceApiSettings>(builder.Configuration.GetSection(
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddAccessTokenManagement();//IClientCredentialTokenService nesne örneðini üretiyor
+builder.Services.AddSingleton<PhotoHelper>();
 builder.Services.AddScoped<ISharedIdentityService, SharedIdentityService>();
 
 var serviceApiSettings=builder.Configuration.GetSection("ServiceApiSettings").Get<ServiceApiSettings>();
@@ -29,6 +31,14 @@ builder.Services.AddHttpClient<ICatalogService,CatalogService>(opt=>
 {
     opt.BaseAddress = new Uri($"{serviceApiSettings.GatewayBaseUri}/{serviceApiSettings.Catalog.Path}");
 } ).AddHttpMessageHandler<ClientCredentialTokenHandler>();
+
+//photostock servis kullanýcý doðrulamaya ihtiyac duymadýðý için ClientCredentialTokenHandler ekleiyoruz
+builder.Services.AddHttpClient<IPhotoStockService, PhotoStockService>(opt =>
+{
+    opt.BaseAddress = new Uri($"{serviceApiSettings.GatewayBaseUri}/{serviceApiSettings.PhotoStock.Path}");
+}).AddHttpMessageHandler<ClientCredentialTokenHandler>();
+
+
 
 
 builder.Services.AddHttpClient<IUserService, UserService>(opt =>

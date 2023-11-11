@@ -20,7 +20,7 @@ namespace FreeCourse.Services.PhotoStock.Controllers
                 await photo.CopyToAsync(stream,cancellationToken);
 
                 //http://wwww.photostock.ap.com/photos/assjjsj.jpg
-                var returnPath= "photos/"+photo.FileName;
+                var returnPath=photo.FileName;
 
                 PhotoDto photoDto = new() { Url = returnPath };
                 return CreateActionResultInstance(Response<PhotoDto>.Success(photoDto,200));
