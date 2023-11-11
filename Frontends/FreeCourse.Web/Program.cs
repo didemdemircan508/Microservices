@@ -14,16 +14,22 @@ builder.Services.Configure<ServiceApiSettings>(builder.Configuration.GetSection(
 
 
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddAccessTokenManagement();//IClientCredentialTokenService nesne örneðini üretiyor
 builder.Services.AddScoped<ISharedIdentityService, SharedIdentityService>();
 
 var serviceApiSettings=builder.Configuration.GetSection("ServiceApiSettings").Get<ServiceApiSettings>();
-builder.Services.AddScoped<ResourceOwnerPasswordTokenHandler>();
-builder.Services.AddHttpClient<IIdentityService, IdentityService>();
+builder.Services.AddHttpClient<IClientCredentialTokenService,ClientCredentialTokenService>();
 
+
+builder.Services.AddScoped<ResourceOwnerPasswordTokenHandler>();
+builder.Services.AddScoped<ClientCredentialTokenHandler>();
+builder.Services.AddHttpClient<IIdentityService, IdentityService>();
+//catalog servis kullanýcý doðrulamaya ihtiyac duymadýðý için ClientCredentialTokenHandler ekleiyoruz
 builder.Services.AddHttpClient<ICatalogService,CatalogService>(opt=>
 {
     opt.BaseAddress = new Uri($"{serviceApiSettings.GatewayBaseUri}/{serviceApiSettings.Catalog.Path}");
-} );
+} ).AddHttpMessageHandler<ClientCredentialTokenHandler>();
+
 
 builder.Services.AddHttpClient<IUserService, UserService>(opt =>
 {
