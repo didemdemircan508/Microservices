@@ -6,6 +6,7 @@
             <div class="card-body">
                 <h5 class="card-title">@Model.Name</h5>
                 <p class="card-text">@Model.Description</p>
+                <div class="badge bg-primary">Kategori:@Model.Category.Name</div>
 
             </div>
         </div>
@@ -14,7 +15,9 @@
         <div class="card">
             <div class="card-body">
                 <h4 class="card-title">Fiyat:@Model.Price TL</h4>
-                <a href="#" class="btn btn-primary">Sepete Ekle</a>
+                <div class="d-grid">
+                <a asp-controller="Basket" asp-action="AddBasketItem" asp-route-courseId="@Model.Id" class="btn btn-primary">Sepete Ekle</a>
+                </div>
             </div>
         </div>
     </div>
