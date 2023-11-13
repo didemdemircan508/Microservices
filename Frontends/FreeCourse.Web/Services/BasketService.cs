@@ -10,11 +10,13 @@ namespace FreeCourse.Web.Services
 
         private readonly HttpClient _httpClient;
         private readonly ISharedIdentityService _sharedIdentityService;
+        private readonly IDiscountService _discountService;
 
-        public BasketService(HttpClient httpClient, ISharedIdentityService sharedIdentityService)
+        public BasketService(HttpClient httpClient, ISharedIdentityService sharedIdentityService, IDiscountService discountService)
         {
             _httpClient = httpClient;
             _sharedIdentityService = sharedIdentityService;
+            _discountService = discountService; 
         }
 
         public async Task<bool> AddBasketItem(BasketItemViewModel basketItemViewModel)
@@ -37,14 +39,35 @@ namespace FreeCourse.Web.Services
            return  await SaveOrUpdate(basket);
         }
 
-        public Task<bool> ApplyDiscount(string discountCode)
+        public async Task<bool> ApplyDiscount(string discountCode)
         {
-            throw new NotImplementedException();
+            await CancelApplyDiscount();
+            var basket = await Get();
+            if (basket == null)
+            {
+                return false;
+            }
+            var hasDiscount=await _discountService.GetDiscount(discountCode);
+            if (hasDiscount == null)
+            {
+                return false;
+            }
+            basket.ApplyDiscount(hasDiscount.Code, hasDiscount.Rate);
+            return await SaveOrUpdate(basket);
+
+
         }
 
-        public Task<bool> CancelApplyDiscount()
+        public async Task<bool> CancelApplyDiscount()
         {
-            throw new NotImplementedException();
+            var basket = await Get();
+            if (basket == null||basket.DiscountCode== null||basket.DiscountCode ==string.Empty)
+            {
+                return false;
+            }
+
+            basket.CancelDiscount();
+            return await SaveOrUpdate(basket);
         }
 
         public async Task<bool> Delete()
@@ -98,9 +121,7 @@ namespace FreeCourse.Web.Services
 
         public async Task<bool> SaveOrUpdate(BasketViewModel basketViewModel)
         {
-            //var response = await _httpClient.PostAsJsonAsync<BasketViewModel>("baskets", basketViewModel);
-
-            //return response.IsSuccessStatusCode;
+           
 
             if (basketViewModel.basketItems.Count == 0)
             {

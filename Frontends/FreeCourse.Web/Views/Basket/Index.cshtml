@@ -20,30 +20,59 @@
                                 <tr>
 
                                     <td>@item.CourseName</td>
-                                    <td>@item.GetCurrentPrice</td> 
+                                    <td>
+                                        @item.GetCurrentPrice TL @(Model.HasDiscount ? $"(%{Model.DiscountRate.Value} uygulandı)" : "")
+                                    </td>
                                     <td>
                                         <a asp-controller="Basket" asp-action="RemoveBasketItem" asp-route-courseId="@item.CourseId" class="btn btn-success btn-sm">Sil</a>
-                                       
+
 
                                     </td>
                                 </tr>
 
                             }
-                             @if (Model.HasDiscount)
+
+                            @if (Model.HasDiscount)
                             {
                                 <tr>
                                     <th>Indirim Oranı</th>
                                     <td colspan="2">%@Model.DiscountRate.Value</td>
                                 </tr>
-                            
+
 
                             }
                             <tr>
-                                <td>@(Model.HasDiscount?"İndirimli Fiyat":"Toplam Fiyat")</td>
+                                <td>@(Model.HasDiscount ? "İndirimli Fiyat" : "Toplam Fiyat")</td>
                                 <td colspan="2">@Model.TotalPrice TL</td>
-                            </tr> 
+                            </tr>
+
                         </tbody>
                     </table>
+                    <form asp-controller="Basket" asp-action="ApplyDiscount">
+                        @if (Model.HasDiscount)
+                        {
+                            <div class="alert alert-success">
+                                "@Model.DiscountCode" indirim kodu uygulandı
+                                <a asp-controller="Basket" asp-action="CancelApplyDiscount">(iptal et)</a>
+                            </div>
+
+                        }
+
+                        <div class="input-group mb-3">
+                            <input type="text" name="DiscountApplyInput.Code" class="form-control" />
+                            <button type="submit" class="btn btn-outline-secondary">Uygula</button>
+                        </div>
+                        @if (TempData["discountStatus"] != null && (bool)TempData["discountStatus"] == false)
+                        {
+                            <div class="text-danger">İndirm Kodu Geçersiz</div>
+
+                        }
+                        @if (TempData["discountError"] != null)
+                        {
+                            <div class="text-danger">@TempData["discountError"]</div>
+                        }
+
+                    </form>
 
                 }
                 else
