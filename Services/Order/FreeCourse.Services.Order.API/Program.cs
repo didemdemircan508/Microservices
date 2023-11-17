@@ -1,14 +1,59 @@
+using FreeCourse.Services.Order.Application.Consumer;
+using FreeCourse.Services.Order.Domain.OrderAggregate;
 using FreeCourse.Services.Order.Infrastructure;
 using FreeCourse.Shared.Services;
+using MassTransit;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using System.IdentityModel.Tokens.Jwt;
 
 var builder = WebApplication.CreateBuilder(args);
 //sub da bir kullanýcý id bekliyorum
+
+
+builder.Services.AddMassTransit(x =>
+{
+    x.AddConsumer<CreateOrderMessageCommandConsumer>();
+    x.AddConsumer<CourseNameChangeEventConsumer>();
+    //x.AddConsumer<SendMailMessageCommandConsumer>();
+
+    // rq default port:5672
+    x.UsingRabbitMq((context, cfg) =>
+    {
+        cfg.Host(builder.Configuration.GetValue<string>("RabbitMQUrl"), "/", host =>
+        {
+            host.Username("guest");
+            host.Password("guest");
+        });
+        //bu consumer hangi endpointi okuyacak
+
+        cfg.ReceiveEndpoint("create-order-service", e =>
+        {
+            e.ConfigureConsumer<CreateOrderMessageCommandConsumer>(context);
+
+        });
+
+        cfg.ReceiveEndpoint("course-name-changed-event-order-service", e =>
+        {
+            e.ConfigureConsumer<CourseNameChangeEventConsumer>(context);
+
+        });
+        //cfg.ReceiveEndpoint("mail-order-service", e =>
+        //{
+        //    e.ConfigureConsumer<SendMailMessageCommandConsumer>(context);
+
+        //});
+    });
+});
+
+
+
+
+
 var requireAutHorizePolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
 JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Remove("sub");//jwt içerisndeki sub 'in name identifier olarak maplenmsinin enegllenmesi
 

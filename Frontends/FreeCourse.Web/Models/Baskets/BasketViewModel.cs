@@ -14,10 +14,6 @@
 
         public int? DiscountRate { get; set; }
 
-        //public List<BasketItemViewModel> basketItems { get { return _basketItems; } set { _basketItems = value; } }
-
-
-
 
         public List<BasketItemViewModel> basketItems
         {
